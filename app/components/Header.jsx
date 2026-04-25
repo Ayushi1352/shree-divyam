@@ -161,10 +161,7 @@ export default function Header() {
                   )}
                 </div>
               )}
-              <div className="flex items-center gap-1.5 md:gap-2 cursor-pointer">
-                <img src="https://res.cloudinary.com/dlzxiy0tl/image/upload/v1774855916/Mask_group_szptm7.png" alt="wishlist" className="h-4 md:h-5 w-auto" />
-                <span>Wishlist</span>
-              </div>
+
               <Link href="/my-bag" className="flex items-center gap-1.5 md:gap-2 cursor-pointer hover:text-white transition-colors group relative">
                 <div className="relative">
                   <img src="https://res.cloudinary.com/dlzxiy0tl/image/upload/v1774855916/Mask_group_2_zcgcsh.png" alt="bag" className="h-4 md:h-5 w-auto" />
