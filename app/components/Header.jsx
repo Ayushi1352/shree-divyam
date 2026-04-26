@@ -13,31 +13,8 @@ export default function Header() {
   const { user, logout, isLoggedIn } = useAuth();
   const [cartCount, setCartCount] = useState(0);
 
-  const fetchCartCount = async () => {
-    // 1. Guest User Logic (Local Storage)
-    if (!isLoggedIn) {
-      try {
-        const storedQuantities = localStorage.getItem("shri_divyam_cart_quantities");
-        const removedItems = JSON.parse(localStorage.getItem("shri_divyam_removed_cart_items") || "[]");
-        
-        if (storedQuantities) {
-          const quantities = JSON.parse(storedQuantities);
-          // Only count items not in the removed blacklist
-          let total = 0;
-          Object.entries(quantities).forEach(([key, qty]) => {
-            const [pId, vId] = key.split('_');
-            const isRemoved = removedItems.some(r => String(r.pId) === String(pId) && String(r.vId) === String(vId));
-            if (!isRemoved) total += (qty || 0);
-          });
-          setCartCount(total);
-        } else {
-          setCartCount(0);
-        }
-      } catch (e) { setCartCount(0); }
-      return;
-    }
-
-    // 2. Logged-in User Logic (API)
+  const syncQuantitiesFromServer = async () => {
+    if (!isLoggedIn) return;
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -47,23 +24,99 @@ export default function Header() {
       
       const text = await res.text();
       if (res.ok && text) {
-        try {
-          const data = JSON.parse(text);
-          setCartCount(data.cart?.total_items || 0);
-        } catch (e) {
-          console.error("Header: Failed to parse cart JSON");
+        const data = JSON.parse(text);
+        const rawItems = data.cart_items || data.cart || data.items || data.data || [];
+        let parsedItems = [];
+        if (Array.isArray(rawItems)) {
+            parsedItems = rawItems;
+        } else if (rawItems && typeof rawItems === 'object') {
+            parsedItems = rawItems._original_items || (Array.isArray(rawItems.items) ? rawItems.items : []);
         }
+        
+        let removedItems = [];
+        try {
+            const rStored = localStorage.getItem("shri_divyam_removed_cart_items");
+            if (rStored) removedItems = JSON.parse(rStored);
+        } catch(e) {}
+
+        // Start with existing local quantities (may have been set by syncGuestCartToUser)
+        let existingQuantities = {};
+        try {
+            const stored = localStorage.getItem("shri_divyam_cart_quantities");
+            if (stored) existingQuantities = JSON.parse(stored);
+        } catch(e) {}
+
+        let newQuantities = { ...existingQuantities };
+        parsedItems.forEach(item => {
+            const pId = String(item.product_id || item.id || '');
+            let vId = String(item.variant_id || item.variation_id || '');
+            if (vId === "null" || vId === "undefined") vId = "";
+            const key = `${pId}_${vId}`;
+            
+            const isRemoved = removedItems.some(r => r.pId === pId && (r.vId ? String(r.vId) === vId : true));
+            
+            if (!isRemoved) {
+                // Check if this product already has a local quantity (from guest sync or user action)
+                const hasLocalQty = Object.keys(existingQuantities).some(k => k.startsWith(`${pId}_`));
+                if (!hasLocalQty) {
+                    // Only set from server if we DON'T already have a local value for this product
+                    newQuantities[key] = Number(item.quantity || 1);
+                }
+            }
+        });
+        localStorage.setItem("shri_divyam_cart_quantities", JSON.stringify(newQuantities));
+        
+        // Dispatch event so UI updates with cleaned quantities
+        window.dispatchEvent(new Event("cartUpdated"));
       }
-    } catch (err) {
-      console.error("Header Cart Fetch Error:", err);
+    } catch (e) {
+      console.error("Header Sync Error:", e);
+    }
+  };
+
+  const fetchCartCount = () => {
+    // 1. Calculate count purely from local storage to guarantee instant UI updates
+    try {
+      const storedQuantities = localStorage.getItem("shri_divyam_cart_quantities");
+      const removedItems = JSON.parse(localStorage.getItem("shri_divyam_removed_cart_items") || "[]");
+      
+      if (storedQuantities) {
+        const quantities = JSON.parse(storedQuantities);
+        let totalItems = 0;
+        
+        Object.entries(quantities).forEach(([key, qty]) => {
+          if (Number(qty) > 0) {
+              const [pId, vId] = key.split('_');
+              
+              // Skip corrupted keys from old bugs
+              if (vId === "null" || vId === "undefined") return;
+              
+              const isRemoved = removedItems.some(r => String(r.pId) === String(pId) && (r.vId ? String(r.vId) === String(vId) : true));
+              
+              if (!isRemoved) {
+                  totalItems += 1;
+              }
+          }
+        });
+        
+        setCartCount(totalItems);
+      } else {
+        setCartCount(0);
+      }
+    } catch (e) { 
+      setCartCount(0); 
     }
   };
 
   useEffect(() => {
     setIsMounted(true);
     fetchCartCount();
+    
+    // Only sync from server once on mount if logged in
+    if (isLoggedIn) {
+      syncQuantitiesFromServer();
+    }
 
-    // Listen for custom events or storage changes to update count live
     const handleUpdate = () => fetchCartCount();
     window.addEventListener("storage", handleUpdate);
     window.addEventListener("cartUpdated", handleUpdate);

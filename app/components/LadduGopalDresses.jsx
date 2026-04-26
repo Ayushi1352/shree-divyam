@@ -12,6 +12,7 @@ import { useCurrency } from "../context/CurrencyContext";
 // Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
+import DirectAddToCart from "./DirectAddToCart";
 
 export default function LadduGopalDresses() {
   const router = useRouter();
@@ -121,31 +122,14 @@ export default function LadduGopalDresses() {
                     {formatPrice(dress.price, dress.usd_price)}
                   </p>
 
-                  {/* BUTTONS */}
-                  <div className="flex flex-col gap-2 mt-auto">
-                    <Link href={`/product-details/${dress.slug}`} className="w-full">
-                      <button className="w-full bg-[#7A1F3D] border border-[#7A1F3D] text-white py-2 md:py-2.5 text-[13px] md:text-[14px] font-gt-walsheim font-medium hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
-                        Shop Now
-                      </button>
-                    </Link>
-                    <button 
-                      onClick={() => {
-                        const params = new URLSearchParams({
-                          productId: dress.id.toString(),
-                          name: dress.name,
-                          image: dress.image_path?.startsWith('http') ? dress.image_path : `${IMAGE_BASE_URL}${dress.image_path}`,
-                          priceINR: dress.price?.toString() || "",
-                          priceUSD: dress.usd_price?.toString() || "",
-                          needsVariant: "true",
-                          slug: dress.slug
-                        });
-                        router.push(`/cart?${params.toString()}`);
-                      }}
-                      className="w-full border border-[#7A1F3D] text-[#7A1F3D] py-2 md:py-2.5 text-[13px] md:text-[14px] font-gt-walsheim font-medium hover:bg-[#7A1F3D] hover:text-white transition-all duration-300 cursor-pointer"
-                    >
-                      Add to Cart
-                    </button>
-                  </div>
+                    <div className="flex flex-col gap-2 mt-auto">
+                      <Link href={`/product-details/${dress.slug}`} className="w-full">
+                        <button className="w-full bg-[#7A1F3D] border border-[#7A1F3D] text-white py-2 md:py-2.5 text-[13px] md:text-[14px] font-gt-walsheim font-medium hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
+                          Shop Now
+                        </button>
+                      </Link>
+                      <DirectAddToCart product={dress} />
+                    </div>
                 </div>
               </div>
             </SwiperSlide>

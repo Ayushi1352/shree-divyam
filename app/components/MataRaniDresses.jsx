@@ -12,6 +12,7 @@ import { useCurrency } from "../context/CurrencyContext";
 // Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
+import DirectAddToCart from "./DirectAddToCart";
 
 export default function MataRaniDresses() {
   const router = useRouter();
@@ -122,30 +123,16 @@ export default function MataRaniDresses() {
                         {formatPrice(product.price, product.usd_price)}
                       </p>
 
-                      <div className="mt-auto pt-3 flex flex-col gap-2 min-[480px]:flex-row">
-                        <Link href={`/product-details/${product.slug}`} className="flex-1">
-                          <button className="w-full border border-[#7A1F3D] bg-[#7A1F3D] px-4 py-2 text-[13px] md:text-[14px] font-gt-walsheim font-medium text-white transition-all duration-300 hover:bg-white hover:text-[#7A1F3D] cursor-pointer">
-                            Shop Now
-                          </button>
-                        </Link>
-                        <button 
-                          onClick={() => {
-                            const params = new URLSearchParams({
-                              productId: product.id.toString(),
-                              name: product.name,
-                              image: product.image_path?.startsWith('http') ? product.image_path : `${IMAGE_BASE_URL}${product.image_path}`,
-                              priceINR: product.price?.toString() || "",
-                              priceUSD: product.usd_price?.toString() || "",
-                              needsVariant: "true",
-                              slug: product.slug
-                            });
-                            router.push(`/cart?${params.toString()}`);
-                          }}
-                          className="flex-1 border border-[#7A1F3D] bg-white px-4 py-2 text-[13px] md:text-[14px] font-medium text-[#7A1F3D] transition-all duration-300 hover:bg-[#7A1F3D] hover:text-white cursor-pointer"
-                        >
-                          Add to Cart
-                        </button>
-                      </div>
+                        <div className="mt-auto pt-3 flex flex-col gap-2 min-[480px]:flex-row">
+                          <Link href={`/product-details/${product.slug}`} className="flex-1">
+                            <button className="w-full h-[42px] flex items-center justify-center border border-[#7A1F3D] bg-[#7A1F3D] text-[13px] md:text-[14px] font-gt-walsheim font-medium text-white transition-all duration-300 hover:bg-white hover:text-[#7A1F3D] cursor-pointer">
+                              Shop Now
+                            </button>
+                          </Link>
+                          <div className="flex-1">
+                            <DirectAddToCart product={product} />
+                          </div>
+                        </div>
                     </div>
                   </div>
                 </SwiperSlide>

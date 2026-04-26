@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useCurrency } from "../context/CurrencyContext";
+import DirectAddToCart from "./DirectAddToCart";
 
 export default function ProductCard({ product }) {
   const { formatPrice } = useCurrency();
@@ -26,13 +27,19 @@ export default function ProductCard({ product }) {
           {formatPrice(product.price, product.usdPrice)}
         </p>
 
-        <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-3 mt-auto">
-          <button className="bg-[#7A1F3D] border border-[#7A1F3D] py-1.5 sm:py-2 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-white cursor-pointer hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 active:scale-95">
+        <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-3 mt-auto relative z-10">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // Link to product details
+              window.location.href = `/product-details/${product.slug}`;
+            }}
+            className="bg-[#7A1F3D] border border-[#7A1F3D] py-1.5 sm:py-2 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-white cursor-pointer hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 active:scale-95"
+          >
             Buy Now
           </button>
-          <button className="border border-[#7A1F3D] bg-white py-1.5 sm:py-2 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#7A1F3D] cursor-pointer hover:bg-[#7A1F3D] hover:text-white transition-all duration-300 active:scale-95">
-            Add To Cart
-          </button>
+          <DirectAddToCart product={product} className="!py-1.5 sm:!py-2 !text-[9px] sm:!text-[11px] !font-bold !uppercase !tracking-wider" />
         </div>
       </div>
     </div>

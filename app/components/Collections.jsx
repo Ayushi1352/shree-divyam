@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCurrency } from '../context/CurrencyContext';
+import DirectAddToCart from './DirectAddToCart';
 
 const IMAGE_BASE_URL = "https://shreedivyam.kdscrm.com/uploads/";
 
@@ -88,7 +89,7 @@ export default function Collections() {
   }, []);
 
   return (
-    <section className="mx-auto max-w-[1720px] py-10 sm:py-16 md:py-20 bg-[#FFF6E8] w-full h-auto overflow-hidden">
+    <section id="premium-collections" className="mx-auto max-w-[1720px] py-10 sm:py-16 md:py-20 bg-[#FFF6E8] w-full h-auto overflow-hidden">
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 md:px-16 lg:px-24">
 
         <div className="text-center mb-10 md:mb-16">
@@ -146,28 +147,14 @@ export default function Collections() {
                       {/* BUTTONS */}
                       <div className="flex flex-col sm:flex-row gap-2">
                         <Link href={href} className="w-full">
-                          <button className="w-full bg-[#7A1F3D] border border-[#7A1F3D] text-white py-2.5 text-[14px] font-medium font-gt-walsheim hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
+                          <button className="w-full h-[42px] flex items-center justify-center bg-[#7A1F3D] border border-[#7A1F3D] text-white text-[14px] font-medium font-gt-walsheim hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
                             Shop Now
                           </button>
                         </Link>
                         {isProduct && (
-                          <button 
-                            onClick={() => {
-                              const params = new URLSearchParams({
-                                productId: item.id.toString(),
-                                name: item.name,
-                                image: imageUrl,
-                                priceINR: item.price?.toString() || "",
-                                priceUSD: item.usd_price?.toString() || "",
-                                needsVariant: "true",
-                                slug: item.slug
-                              });
-                              router.push(`/cart?${params.toString()}`);
-                            }}
-                            className="w-full border border-[#7A1F3D] text-[#7A1F3D] py-2.5 text-[14px] font-medium font-gt-walsheim hover:bg-[#7A1F3D] hover:text-white transition-all duration-300 cursor-pointer"
-                          >
-                            Add to Cart
-                          </button>
+                          <div className="w-full">
+                            <DirectAddToCart product={item} />
+                          </div>
                         )}
                       </div>
                     </div>

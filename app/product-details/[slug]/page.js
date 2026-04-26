@@ -63,7 +63,7 @@ export default async function ProductDetailsPage({ params }) {
 
   // Map API fields to our expected layout structure
   const product = {
-    id: productFromApi.id,
+    id: productFromApi.id || productFromApi.product_id || productFromApi.id_product,
     title: productFromApi.name || productFromApi.product_name || "Premium Dress",
     price: productFromApi.price,
     usdPrice: productFromApi.usd_price,

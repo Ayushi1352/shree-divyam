@@ -12,6 +12,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import DirectAddToCart from "./DirectAddToCart";
 
 export default function LatestCollection() {
   const router = useRouter();
@@ -144,35 +145,16 @@ export default function LatestCollection() {
                             {formatPrice(product.price, product.usd_price)}
                           </p>
 
-                          {/* BUTTONS */}
                           <div className="flex gap-3 mt-auto">
                             <Link href={`/product-details/${product.slug}`} className="flex-1">
-                              <button className="w-full bg-[#7A1F3D] border border-[#7A1F3D] text-white py-2.5 text-[14px] font-semibold hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
+                              <button className="w-full h-[42px] flex items-center justify-center bg-[#7A1F3D] border border-[#7A1F3D] text-white text-[14px] font-semibold hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
                                 Shop Now
                               </button>
                             </Link>
 
-                            <button 
-                              onClick={() => {
-                                const finalImage = product.image_path?.startsWith('http') 
-                                  ? product.image_path 
-                                  : `${IMAGE_BASE_URL}${product.image_path}`;
-                                  
-                                const params = new URLSearchParams({
-                                  productId: product.id.toString(),
-                                  name: product.name,
-                                  image: finalImage,
-                                  priceINR: product.price?.toString() || "",
-                                  priceUSD: product.usd_price?.toString() || "",
-                                  needsVariant: "true",
-                                  slug: product.slug
-                                });
-                                router.push(`/cart?${params.toString()}`);
-                              }}
-                              className="flex-1 border border-[#7A1F3D] text-[#7A1F3D] py-2.5 text-[14px] font-semibold hover:bg-[#7A1F3D] hover:text-white transition-all duration-300 cursor-pointer"
-                            >
-                              Add to Cart
-                            </button>
+                            <div className="flex-1">
+                              <DirectAddToCart product={product} />
+                            </div>
                           </div>
                         </div>
                       </div>

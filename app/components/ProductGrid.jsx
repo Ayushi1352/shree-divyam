@@ -12,6 +12,7 @@ import { useCurrency } from "../context/CurrencyContext";
 // Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
+import DirectAddToCart from "./DirectAddToCart";
 
 export default function ProductGrid() {
   const router = useRouter();
@@ -118,30 +119,13 @@ export default function ProductGrid() {
                     {formatPrice(product.price, product.usd_price)}
                   </p>
 
-                  {/* BUTTONS */}
                   <div className="flex flex-col sm:flex-row gap-2 mt-auto">
                     <Link href={`/product-details/${product.slug}`} className="w-full">
-                      <button className="w-full bg-[#7A1F3D] border border-[#7A1F3D] text-white py-2 text-[13px] md:text-[14px] font-medium hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
+                      <button className="w-full h-[42px] flex items-center justify-center bg-[#7A1F3D] border border-[#7A1F3D] text-white text-[13px] md:text-[14px] font-medium hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
                         Shop Now
                       </button>
                     </Link>
-                    <button
-                      onClick={() => {
-                        const params = new URLSearchParams({
-                          productId: product.id.toString(),
-                          name: product.name,
-                          image: product.image_path?.startsWith('http') ? product.image_path : `${IMAGE_BASE_URL}${product.image_path}`,
-                          priceINR: product.price?.toString() || "",
-                          priceUSD: product.usd_price?.toString() || "",
-                          needsVariant: "true",
-                          slug: product.slug
-                        });
-                        router.push(`/cart?${params.toString()}`);
-                      }}
-                      className="w-full border border-[#7A1F3D] text-[#7A1F3D] py-2 text-[13px] md:text-[14px] font-medium hover:bg-[#7A1F3D] hover:text-white transition-all duration-300 cursor-pointer"
-                    >
-                      Add to Cart
-                    </button>
+                    <DirectAddToCart product={product} />
                   </div>
                 </div>
               </div>

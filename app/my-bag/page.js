@@ -7,12 +7,13 @@ import Footer from "../components/Footer";
 import Link from "next/link";
 import { Loader2, ShoppingBag, Trash2, Plus, Minus, ArrowLeft, ShieldCheck, Truck, AlertCircle } from "lucide-react";
 import { useCurrency } from "../context/CurrencyContext";
+import { updateCartItemQuantity, removeCartItem, CART_QUANTITIES_KEY, REMOVED_ITEMS_KEY } from "../utils/cartUtils";
 import { products as staticProducts } from "../data/products";
 
-const IMAGE_BASE_URL = "https://shreedivyam.kdscrm.com/uploads/";
-
-// --- localStorage helpers for persistent cart removal ---
-const REMOVED_ITEMS_KEY = "shri_divyam_removed_cart_items";
+// Resolve the display ID of a cart item (same chain as rendering uses)
+const resolveItemId = (item) => {
+    return item.id || item.cart_item_id || item.row_id || item.cart_id || item.variation_id || item.product_id;
+};
 
 const getRemovedItems = () => {
     if (typeof window === 'undefined') return [];
@@ -20,11 +21,6 @@ const getRemovedItems = () => {
         const stored = localStorage.getItem(REMOVED_ITEMS_KEY);
         return stored ? JSON.parse(stored) : [];
     } catch (e) { return []; }
-};
-
-// Resolve the display ID of a cart item (same chain as rendering uses)
-const resolveItemId = (item) => {
-    return item.id || item.cart_item_id || item.row_id || item.cart_id || item.variation_id || item.product_id;
 };
 
 const addRemovedItem = (cartItem) => {
@@ -76,37 +72,24 @@ const filterRemovedItems = (items) => {
     return items.filter(item => !isItemRemoved(item));
 };
 
-// --- localStorage helpers for persistent cart quantities ---
-const CART_QUANTITIES_KEY = "shri_divyam_cart_quantities";
+// Generate a stable key for a cart item - use ID_VARIANT for strict grouping
+const getItemKey = (item) => {
+    const productId = item.product_id || item.id;
+    const variantId = item.variant_id || item.variation_id || item.variation?.id || item.variant?.id || "";
+    
+    if (productId) return `${productId}_${variantId}`;
+
+    const slug = item.slug || item.product_slug || item.product?.slug;
+    if (slug && typeof slug === 'string') return `${slug}_${variantId}`;
+
+    return `unknown_${variantId}`;
+};
 
 const getSavedQuantities = () => {
     try {
         const stored = localStorage.getItem(CART_QUANTITIES_KEY);
         return stored ? JSON.parse(stored) : {};
     } catch (e) { return {}; }
-};
-
-const saveQuantity = (itemKey, qty) => {
-    try {
-        const quantities = getSavedQuantities();
-        quantities[itemKey] = qty;
-        localStorage.setItem(CART_QUANTITIES_KEY, JSON.stringify(quantities));
-    } catch (e) { }
-};
-
-const removeQuantity = (itemKey) => {
-    try {
-        const quantities = getSavedQuantities();
-        delete quantities[itemKey];
-        localStorage.setItem(CART_QUANTITIES_KEY, JSON.stringify(quantities));
-    } catch (e) { }
-};
-
-// Generate a stable key for a cart item
-const getItemKey = (item) => {
-    const productId = item.product_id || item.id;
-    const variantId = item.variant_id || item.variation_id || '';
-    return `${productId}_${variantId}`;
 };
 
 export default function MyBagPage() {
@@ -154,6 +137,24 @@ export default function MyBagPage() {
                     }
                     return enriched;
                 });
+
+                // --- LOCAL RECOVERY START ---
+                const existingKeys = new Set(itemsWithCorrectQty.map(it => getItemKey(it)));
+                Object.entries(savedQty).forEach(([key, qty]) => {
+                    if (Number(qty) > 0 && !existingKeys.has(key)) {
+                        const [pId, vId] = key.split('_');
+                        const isRemoved = filterRemovedItems([{ product_id: pId, variant_id: vId }]).length === 0;
+                        if (!isRemoved) {
+                            itemsWithCorrectQty.push({
+                                product_id: pId,
+                                variant_id: vId,
+                                quantity: Number(qty),
+                                _isPending: true
+                            });
+                        }
+                    }
+                });
+                // --- LOCAL RECOVERY END ---
 
                 setCartItems(itemsWithCorrectQty);
                 // Also trigger full enrichment for dynamic data
@@ -237,18 +238,39 @@ export default function MyBagPage() {
                 }
                 // --- AGGRESSIVE AUTO-CLEANUP END ---
 
-                // ★ OVERRIDE & GROUPING LOGIC
-                const savedQty = getSavedQuantities();
-                const groupedMap = new Map();
-
-                filteredItems.forEach(item => {
-                    const exactKey = getItemKey(item);
+                // ★ PRE-GROUPING ENRICHMENT
+                // Raw API items often lack slugs/names. We must find them first to group correctly.
+                const preEnrichedItems = filteredItems.map(item => {
                     const pId = String(item.product_id || item.id || '');
+                    let enriched = { ...item };
                     
+                    if (staticProducts && staticProducts.length > 0) {
+                        const found = staticProducts.find(p => String(p.id) === pId);
+                        if (found) {
+                            enriched.slug = enriched.slug || found.slug;
+                            enriched.product_name = enriched.product_name || found.title || found.name;
+                            enriched.image_path = enriched.image_path || found.image;
+                        }
+                    }
+                    return enriched;
+                });
+
+                // ★ OVERRIDE & GROUPING LOGIC
+                // ★ GROUP BY PRODUCT_ID ONLY — prevents duplicate display when server has 2 entries
+                //   for the same product (e.g. added via different components picking different variants)
+                const savedQty = getSavedQuantities();
+                const groupedMap = new Map(); // key = product_id (string)
+
+                preEnrichedItems.forEach(item => {
+                    const pId = String(item.product_id || item.id || '');
+                    if (!pId) return;
+
+                    const exactKey = getItemKey(item);
+
                     // Find any saved quantity for this product
                     const matchingKey = Object.keys(savedQty).find(k => k === exactKey || k.startsWith(`${pId}_`));
-                    
-                    // Determine correct quantity for this specific item
+
+                    // Determine correct quantity
                     let finalQty = 1;
                     if (matchingKey && savedQty[matchingKey] !== undefined) {
                         finalQty = Number(savedQty[matchingKey]);
@@ -256,16 +278,50 @@ export default function MyBagPage() {
                         finalQty = Number(item.quantity);
                     }
 
-                    const groupKey = exactKey;
+                    // ★ Use product_id as the group key to deduplicate same products with different variants
+                    const groupKey = pId;
+
                     if (groupedMap.has(groupKey)) {
-                        // If we already have this product/variant, we don't add a new row
-                        // The quantity is already managed by the local override or the first instance
+                        // DUPLICATE FOUND: Same product_id already in map (server returned 2 entries)
+                        // Keep whichever has higher quantity. Don't double-count.
+                        const existing = groupedMap.get(groupKey);
+                        const existingQty = Number(existing.quantity) || 1;
+                        if (finalQty > existingQty) {
+                            groupedMap.set(groupKey, { ...item, quantity: finalQty });
+                        }
+                        // Otherwise keep existing (first/higher qty entry wins)
                     } else {
                         groupedMap.set(groupKey, { ...item, quantity: finalQty });
                     }
                 });
 
                 const itemsWithCorrectQty = Array.from(groupedMap.values());
+
+                // --- LOCAL RECOVERY START ---
+                // If there are items in local quantities that aren't in the list (maybe server is slow), add them
+                Object.entries(savedQty).forEach(([key, qty]) => {
+                    if (Number(qty) > 0) {
+                        const underscoreIdx = key.indexOf('_');
+                        if (underscoreIdx === -1) return;
+                        const pId = key.substring(0, underscoreIdx);
+                        const vId = key.substring(underscoreIdx + 1);
+
+                        // Only add if not already shown AND not blacklisted
+                        if (!groupedMap.has(pId)) {
+                            const isRemoved = filterRemovedItems([{ product_id: pId, variant_id: vId }]).length === 0;
+                            if (!isRemoved) {
+                                itemsWithCorrectQty.push({
+                                    product_id: pId,
+                                    variant_id: vId,
+                                    quantity: Number(qty),
+                                    _isPending: true
+                                });
+                            }
+                        }
+                    }
+                });
+                // --- LOCAL RECOVERY END ---
+
                 setCartItems(itemsWithCorrectQty);
 
                 setError("");
@@ -484,6 +540,7 @@ export default function MyBagPage() {
         // 1. Clear Local Storage
         localStorage.removeItem("shri_divyam_cart_quantities");
         localStorage.removeItem("shri_divyam_removed_cart_items");
+        localStorage.removeItem("shri_divyam_removed_items");
         localStorage.removeItem("shri_divyam_guest_cart");
         
         // 2. Optimistic UI State
@@ -496,15 +553,33 @@ export default function MyBagPage() {
             setCheckoutStatus({ type: "success", message: "Hard-resetting your cart..." });
             
             // Call delete for each item to sync server
-            // We do this in parallel to be faster
             try {
                 await Promise.all(itemsToRemove.map(async (item) => {
                     const itemId = item.id || item.cart_item_id || item.row_id || item.cart_id;
-                    if (itemId && !itemId.toString().startsWith('index-')) {
-                        return fetch(`/api/proxy/cart/${itemId}`, {
+                    const pId = item.product_id || item.id;
+                    const vId = item.variant_id || item.variation_id || "";
+
+                    const strategies = [
+                        () => fetch(`/api/proxy/cart/remove`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                            body: JSON.stringify({ cart_item_id: itemId, product_id: pId, variant_id: vId, user_id: "1" })
+                        }),
+                        () => fetch(`/api/proxy/cart/${itemId}`, {
                             method: "DELETE",
-                            headers: { "Accept": "application/json", "Authorization": `Bearer ${token}` }
-                        }).catch(() => null);
+                            headers: { "Authorization": `Bearer ${token}` }
+                        }),
+                        () => fetch(`/api/proxy/cart/remove/${itemId}`, {
+                            method: "DELETE",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        })
+                    ];
+
+                    for (const strategy of strategies) {
+                        try {
+                            const res = await strategy();
+                            if (res.ok) break;
+                        } catch (e) {}
                     }
                 }));
             } catch (e) { console.error("Server clear error:", e); }
@@ -520,88 +595,46 @@ export default function MyBagPage() {
     };
 
     const handleRemoveItem = async (cartItemId) => {
-        const token = localStorage.getItem("token");
-        
         // Find the target item BEFORE removing
         const targetItem = cartItems.find((ci, idx) => {
             const id = ci.id || ci.cart_item_id || ci.row_id || ci.cart_id || ci.variation_id || ci.product_id;
             return id == cartItemId || `index-${idx}` == cartItemId;
         });
 
+        if (!targetItem) return;
+
         // 1. Instant UI removal for everyone
         setCartItems(prev => prev.filter((it, idx) => {
             const id = it.id || it.cart_item_id || it.row_id || it.cart_id || it.variation_id || it.product_id;
             return id != cartItemId && `index-${idx}` != cartItemId;
         }));
-        window.dispatchEvent(new Event("cartUpdated"));
 
-        // 2. Blacklist locally (Very important for guest and persistent removal)
-        if (targetItem) {
-            // Use the centralized helper to ensure correct format { pId, vId }
-            addRemovedItem(targetItem);
-            
-            // Also clear its quantity from local storage
-            removeQuantity(getItemKey(targetItem));
-        }
-
-        // 3. If logged in, call the specified DELETE API
-        if (token && cartItemId) {
-            try {
-                await fetch(`/api/proxy/cart/${cartItemId}`, {
-                    method: "DELETE",
-                    headers: { "Accept": "application/json", "Authorization": `Bearer ${token}` }
-                });
-            } catch (e) { }
-        }
+        // 2. Delegate to cartUtils for backend and localStorage
+        const variantId = targetItem.variant_id || targetItem.variation_id || "";
+        await removeCartItem(targetItem, variantId);
     };
 
     const handleUpdateQuantity = async (cartItemId, newQuantity) => {
         if (newQuantity < 1) return;
-        const token = localStorage.getItem("token");
-        // No more 'if (!token) return;' - Allow guest users to proceed!
 
-
-        // ★ Find the item first so we can validate stock BEFORE updating
         const foundItem = cartItems.find((ci, idx) => {
             const id = ci.id || ci.cart_item_id || ci.row_id || ci.cart_id || ci.variation_id || ci.product_id;
             return id == cartItemId || `index-${idx}` == cartItemId;
         });
 
+        if (!foundItem) return;
+
         const targetQuantity = Number(newQuantity);
-
-        // ★ STOCK VALIDATION: Block quantity if it exceeds available stock
-        if (foundItem) {
-            const maxStock = getMaxStock(foundItem);
-            const currentQuantity = Number(foundItem.quantity) || 1;
-            
-            // Only block if trying to INCREASE past max stock
-            if (maxStock !== Infinity && targetQuantity > maxStock && targetQuantity > currentQuantity) {
-                // Don't allow exceeding stock
-                return;
-            }
+        const maxStock = getMaxStock(foundItem);
+        const currentQuantity = Number(foundItem.quantity) || 1;
+        
+        if (maxStock !== Infinity && targetQuantity > maxStock && targetQuantity > currentQuantity) {
+            return;
         }
-
-        // ★ Save user-chosen quantity to localStorage (persists across refresh)
-        if (foundItem) {
-            saveQuantity(getItemKey(foundItem), targetQuantity);
-        }
-
-        let userId = "";
-        try {
-            const token = localStorage.getItem("token");
-            const userStr = localStorage.getItem("user");
-            if (userStr) {
-                const userData = JSON.parse(userStr);
-                if (typeof userData === 'object' && userData !== null) {
-                    userId = userData.id || userData.user_id || userData.userid || userData.ID || "";
-                }
-            }
-            if (token && !userId) userId = 1;
-        } catch (e) { }
 
         setUpdatingId(cartItemId);
 
-        // Optimistic UI Update
+        // 1. Optimistic UI Update
         const originalItems = [...cartItems];
         setCartItems(prev => prev.map((it, index) => {
             const currentItemId = it.id || it.cart_item_id || it.row_id || it.cart_id || it.variation_id || it.product_id || `index-${index}`;
@@ -609,144 +642,15 @@ export default function MyBagPage() {
             return it;
         }));
 
-        // If no token, we just stop here (Local UI is already updated above)
-        if (!token) {
-            setUpdatingId(null);
-            return;
-        }
+        // 2. Delegate to cartUtils
+        const variantId = foundItem.variant_id || foundItem.variation_id || "";
+        const result = await updateCartItemQuantity(foundItem, targetQuantity, variantId);
 
-        // Backend requires valid variant_id but doesn't supply it. Fetch it dynamically.
-        let realVariantId = foundItem?.variant_id || foundItem?.variation_id || foundItem?.variation?.id || "";
-
-        if (!realVariantId && (foundItem?.product_id || foundItem?.slug)) {
-            try {
-                if (foundItem?.slug) {
-                    const prodRes = await fetch(`/api/proxy/products/${foundItem.slug}`);
-                    if (prodRes.ok) {
-                        const probText = await prodRes.text();
-                        try {
-                            const probObj = JSON.parse(probText);
-                            const vrs = probObj?.product?.variations || probObj?.product?.variants;
-                            if (vrs && vrs.length > 0) realVariantId = vrs[0].id;
-                        } catch (e) { }
-                    }
-                }
-
-                if (!realVariantId && foundItem?.product_id) {
-                    const premRes = await fetch(`/api/proxy/premium/products`);
-                    if (premRes.ok) {
-                        const premText = await premRes.text();
-                        try {
-                            const premJson = JSON.parse(premText);
-                            const pool = premJson.data || premJson.products || premJson || [];
-                            const pFound = pool.find(x => x.id == foundItem.product_id);
-                            const vrs = pFound?.variations || pFound?.variants;
-                            if (vrs && vrs.length > 0) realVariantId = vrs[0].id;
-                        } catch (e) { }
-                    }
-                }
-            } catch (e) { }
-        }
-
-        if (!realVariantId) realVariantId = "1";
-
-        const strategies = [
-            // Strategy 1: JSON POST /api/cart/update (Body payload)
-            async () => fetch(`/api/proxy/cart/update`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Accept": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify({
-                    cart_item_id: cartItemId,
-                    product_id: foundItem?.product_id,
-                    variant_id: String(realVariantId),
-                    quantity: targetQuantity,
-                    user_id: String(userId)
-                })
-            }),
-            // Strategy 2: POST /api/cart/update-quantity (Direct endpoint)
-            async () => fetch(`/api/proxy/cart/update-quantity`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "Accept": "application/json" },
-                body: JSON.stringify({ 
-                    cart_item_id: cartItemId, 
-                    product_id: foundItem?.product_id,
-                    quantity: targetQuantity,
-                    user_id: String(userId)
-                })
-            }),
-            // Strategy 3: POST /api/cart/update/{id} (Parameterized)
-            async () => fetch(`/api/proxy/cart/update/${cartItemId}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Accept": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify({ quantity: targetQuantity, user_id: String(userId) })
-            }),
-            // Strategy 4: JSON POST /api/cart/add (Matches cart/page.js - Highly likely to work)
-            async () => fetch(`/api/proxy/cart/add`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    user_id: String(userId),
-                    product_id: Number(foundItem?.product_id || 0),
-                    variant_id: Number(realVariantId),
-                    quantity: Number(targetQuantity)
-                })
-            }),
-            // Strategy 5: URLSearchParams POST /api/cart/add (Legacy Form Data)
-            async () => {
-                const body = new URLSearchParams();
-                body.append('user_id', String(userId));
-                body.append('product_id', String(foundItem?.product_id || 0));
-                body.append('variant_id', String(realVariantId));
-                body.append('quantity', String(targetQuantity));
-
-                return fetch(`/api/proxy/cart/add`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "Accept": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: body.toString()
-                });
-            }
-        ];
-
-        try {
-            let success = false;
-            let lastError = "";
-            let strategyIndex = 0;
-
-            for (let i = 0; i < strategies.length; i++) {
-                strategyIndex = i + 1;
-                try {
-                    const response = await strategies[i]();
-                    const contentType = response.headers.get("content-type");
-
-                    if (response.ok && contentType && contentType.includes("application/json")) {
-                        success = true;
-                        break;
-                    } else if (response.ok) {
-                        lastError = `S${strategyIndex}:HTML Response`;
-                    } else {
-                        lastError = `S${strategyIndex}:${response.status}`;
-                    }
-                } catch (e) { lastError = `S${strategyIndex}:Err`; }
-            }
-
-            if (!success) {
-                // Let it fail silently per original requirement to avoid showing raw errors
-                setCartItems(originalItems);
-            }
-        } catch (err) {
-            console.error("Network error.");
+        if (!result.success && localStorage.getItem("token")) {
             setCartItems(originalItems);
-        } finally {
-            setUpdatingId(null);
         }
+        
+        setUpdatingId(null);
     };
 
     // Get product image URL - Universal Resolver version
@@ -1017,7 +921,7 @@ export default function MyBagPage() {
                             <ShoppingBag size={64} className="text-gray-300 mb-6" />
                             <h2 className="text-2xl font-playfair font-semibold text-[#303030] mb-2">Your bag is empty</h2>
                             <p className="text-gray-500 mb-8 max-w-md">Looks like you haven't added anything to your bag yet. Browse our collection to find something you'll love.</p>
-                            <Link href="/">
+                            <Link href="/#premium-collections">
                                 <button className="bg-[#7A1F3D] text-white px-8 py-3 font-medium hover:bg-[#5E182F] transition uppercase tracking-widest text-sm">
                                     Browse Collection
                                 </button>
