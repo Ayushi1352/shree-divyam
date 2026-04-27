@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { Loader2, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, X } from "lucide-react";
 
-export default function ResetPasswordDynamicPage() {
+function ResetPasswordDynamicContent() {
     const router = useRouter();
     const params = useParams();
     const searchParams = useSearchParams();
@@ -265,5 +265,20 @@ export default function ResetPasswordDynamicPage() {
 
             <Footer />
         </main>
+    );
+}
+
+export default function ResetPasswordDynamicPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-[#F9F7F5]">
+                <div className="flex flex-col items-center justify-center text-gray-500">
+                    <Loader2 className="animate-spin mb-2" size={24} />
+                    <p className="text-sm">Loading...</p>
+                </div>
+            </div>
+        }>
+            <ResetPasswordDynamicContent />
+        </Suspense>
     );
 }
