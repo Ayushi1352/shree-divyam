@@ -1,23 +1,22 @@
 "use client";
 
+"use client";
+
 const feedback = [
   {
-    quote:
-      "Supporting Sri Divyam has been a truly uplifting experience. Knowing that my contribution helps feed the needy and spread devotion brings deep satisfaction to my heart.”",
+    quote: "Supporting Sri Divyam has been a truly uplifting experience. Knowing that my contribution helps feed the needy and spread devotion brings deep satisfaction to my heart.”",
     name: "Jerome Bell",
-    location: "Inidia",
+    location: "India",
   },
   {
-    quote:
-      "Supporting Sri Divyam has been a truly uplifting experience. Knowing that my contribution helps feed the needy and spread devotion brings deep satisfaction to my heart.”",
-    name: "Jerome Bell",
-    location: "Inidia",
+    quote: "Your support empowers countless devotees. Thank you for being part of our mission. Your generosity helps us reach more households,  and spread divine love across every corner of our community. ",
+    name: "Aisha Patel",
+    location: "India",
   },
   {
-    quote:
-      "Supporting Sri Divyam has been a truly uplifting experience. Knowing that my contribution helps feed the needy and spread devotion brings deep satisfaction to my heart.”",
-    name: "Jerome Bell",
-    location: "Inidia",
+    quote: "Every contribution spreads love and devotion. Grateful for this community. Your gifts enable us to host festivals, and make a real difference in countless lives. Thank you for your unwavering commitment.",
+    name: "Rohit Kumar",
+    location: "India",
   },
 ];
 
@@ -60,9 +59,9 @@ export default function FeedbackSection() {
               className="rounded-[20px] sm:rounded-[28px] border border-[#EDEDED] bg-white px-5 py-6 sm:px-6 sm:py-7 md:px-7 md:py-8 shadow-sm hover:shadow-md transition-all group"
             >
               <div className="mb-4">
-                <img 
-                  src="https://res.cloudinary.com/dlzxiy0tl/image/upload/v1776164709/Customer%20Feedback.png" 
-                  alt="Quote Icon" 
+                <img
+                  src="https://res.cloudinary.com/dlzxiy0tl/image/upload/v1776164709/Customer%20Feedback.png"
+                  alt="Quote Icon"
                   className="h-[28px] sm:h-[32px] w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity"
                 />
               </div>
@@ -74,12 +73,8 @@ export default function FeedbackSection() {
               <div className="my-5 h-px w-full bg-[#F0F0F0]" />
 
               <div className="flex flex-col">
-                <h3 className="text-[17px] sm:text-[18px] font-semibold leading-none text-[#1E1E2D]">
-                  {item.name}
-                </h3>
-                <p className="mt-2 text-[13px] sm:text-[14px] leading-none text-[#9A9A9A]">
-                  {item.location}
-                </p>
+                <h3 className="text-[17px] sm:text-[18px] font-semibold leading-none text-[#1E1E2D]">{item.name}</h3>
+
               </div>
             </article>
           ))}

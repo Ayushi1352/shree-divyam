@@ -56,7 +56,7 @@ export default function LadduGopalDresses() {
     : products;
 
   return (
-    <section className="mx-auto max-w-[1720px] bg-[#FEF5E6] py-10 sm:py-16 md:py-20">
+    <section id="laddu-gopal-section" className="mx-auto max-w-[1720px] bg-[#FEF5E6] py-10 sm:py-16 md:py-20">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10 md:px-16 lg:px-24">
 
         {/* HEADER */}
@@ -66,11 +66,11 @@ export default function LadduGopalDresses() {
           </h2>
 
           <div className="flex gap-2 sm:gap-3 self-start sm:self-auto">
-            <button className="lg-prev w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-[#D6D6D6] rounded-full hover:bg-[#7A1F3D] hover:text-white transition cursor-pointer">
-              <ChevronLeft size={16} className="md:w-[18px]" />
+            <button className="lg-prev w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-[#D6D6D6] rounded-full  hover:text-white transition cursor-pointer">
+            <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20ranii.png'></img>
             </button>
-            <button className="lg-next w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-[#7A1F3D] text-white hover:bg-[#5E182F] transition cursor-pointer">
-              <ChevronRight size={16} className="md:w-[18px]" />
+            <button className="lg-next w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full  text-white  transition cursor-pointer">
+<img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20rani.png'></img>
             </button>
           </div>
         </div>
@@ -112,17 +112,19 @@ export default function LadduGopalDresses() {
 
                 {/* CONTENT */}
                 <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-1">
-                  <h3 className="text-[15px] sm:text-[19px] md:text-[22px] lg:text-[24px] font-medium font-gt-walsheim text-[#303030] mb-0.5 sm:mb-2 group-hover:text-[#7A1F3D] transition-colors line-clamp-1">
+                  <h3 className="text-[15px] sm:text-[19px] md:text-[22px] lg:text-[24px] font-medium font-gt-walsheim text-[#303030] mb-2 sm:mb-3 group-hover:text-[#7A1F3D] transition-colors line-clamp-1">
                     {dress.name}
                   </h3>
-                  <p className="text-[12px] sm:text-[14px] text-gray-600 font-gt-walsheim mb-2 md:mb-3 line-clamp-2">
+                  <p className="text-[12px] sm:text-[14px] text-gray-600 font-gt-walsheim mb-4 md:mb-5 line-clamp-2">
                     {dress.short_description}
                   </p>
-                  <p className="text-[18px] sm:text-[22px] md:text-[24px] font-bold text-[#7A1F3D] mb-3 md:mb-4">
-                    {formatPrice(dress.price, dress.usd_price)}
-                  </p>
+                  
+                  <div className="mt-auto pt-2">
+                    <p className="text-[18px] sm:text-[22px] md:text-[24px] font-bold text-[#7A1F3D] mb-2 sm:mb-3">
+                      {formatPrice(dress.price, dress.usd_price)}
+                    </p>
 
-                    <div className="flex flex-col gap-2 mt-auto">
+                    <div className="flex flex-col gap-2">
                       <Link href={`/product-details/${dress.slug}`} className="w-full">
                         <button className="w-full bg-[#7A1F3D] border border-[#7A1F3D] text-white py-2 md:py-2.5 text-[13px] md:text-[14px] font-gt-walsheim font-medium hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 cursor-pointer">
                           Shop Now
@@ -130,6 +132,7 @@ export default function LadduGopalDresses() {
                       </Link>
                       <DirectAddToCart product={dress} />
                     </div>
+                  </div>
                 </div>
               </div>
             </SwiperSlide>

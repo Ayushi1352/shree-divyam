@@ -26,23 +26,25 @@ export default function ProductCard({ product }) {
           {product.title}
         </h3>
 
-        <div className="min-h-[2.9em] mt-1">
+        <div className="min-h-[2.9em] mt-2 sm:mt-3">
           <p className="text-[12px] sm:text-[14px] leading-[1.45] font-gt-walsheim text-gray-600 line-clamp-2">
             {product.description}
           </p>
         </div>
 
-        <p className="mt-2 text-[18px] sm:text-[22px] md:text-[24px] font-bold font-gt-walsheim text-[#7A1F3D]">
-          {formatPrice(product.price, product.usdPrice)}
-        </p>
+        <div className="mt-auto pt-4">
+          <p className="text-[18px] sm:text-[22px] md:text-[24px] font-bold font-gt-walsheim text-[#7A1F3D] mb-2 sm:mb-3">
+            {formatPrice(product.price, product.usdPrice)}
+          </p>
 
-        <div className="mt-auto pt-4 grid grid-cols-2 gap-2 sm:gap-3 relative z-20">
-          <button 
-            className="w-full h-[40px] flex items-center justify-center border border-[#7A1F3D] bg-[#7A1F3D] text-[13px] md:text-[14px] font-gt-walsheim font-medium text-white transition-all duration-300 hover:bg-white hover:text-[#7A1F3D] cursor-pointer"
-          >
-            Shop Now
-          </button>
-          <DirectAddToCart product={product} className="!h-[40px] !text-[13px] md:!text-[14px]" />
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 relative z-20">
+            <button 
+              className="w-full h-[40px] flex items-center justify-center border border-[#7A1F3D] bg-[#7A1F3D] text-[13px] md:text-[14px] font-gt-walsheim font-medium text-white transition-all duration-300 hover:bg-white hover:text-[#7A1F3D] cursor-pointer"
+            >
+              Shop Now
+            </button>
+            <DirectAddToCart product={product} className="!h-[40px] !text-[13px] md:!text-[14px]" />
+          </div>
         </div>
       </div>
     </div>

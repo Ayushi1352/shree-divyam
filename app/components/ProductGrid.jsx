@@ -56,7 +56,7 @@ export default function ProductGrid() {
     : products;
 
   return (
-    <section className="mx-auto max-w-[1720px] bg-[#FDF8F3] pt-6 sm:pt-10 md:pt-12 pb-10 sm:pb-16 md:pb-20">
+    <section id="radha-krishna-section" className="mx-auto max-w-[1720px] bg-[#FDF8F3] pt-6 sm:pt-10 md:pt-12 pb-10 sm:pb-16 md:pb-20">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-12 md:px-16 lg:px-24">
 
         {/* HEADER */}
@@ -66,11 +66,11 @@ export default function ProductGrid() {
           </h2>
 
           <div className="flex gap-2 sm:gap-3 self-start sm:self-auto">
-            <button className="rk-prev w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-[#D6D6D6] rounded-full hover:bg-[#7A1F3D] hover:text-white transition cursor-pointer">
-              <ChevronLeft size={16} className="md:w-[18px]" />
+            <button className="rk-prev w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-[#D6D6D6] rounded-full  hover:text-white transition cursor-pointer">
+              <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20ranii.png'></img>
             </button>
-            <button className="rk-next w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-[#7A1F3D] text-white hover:bg-[#5E182F] transition cursor-pointer">
-              <ChevronRight size={16} className="md:w-[18px]" />
+            <button className="rk-next w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full  text-white  transition cursor-pointer">
+              <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20rani.png'></img>
             </button>
           </div>
         </div>

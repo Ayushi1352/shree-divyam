@@ -127,11 +127,11 @@ export default function Collections() {
                     <div className="absolute inset-0 bg-[#7A1F3D]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
                   </div>
                   <div className="p-4 sm:p-5 flex-1 flex flex-col">
-                    <h3 className="text-[16px] sm:text-[18px] md:text-[21px] font-medium text-[#303030] font-gt-walsheim mb-0.5 sm:mb-2 line-clamp-1 group-hover:text-[#7A1F3D] transition-colors">
+                    <h3 className="text-[16px] sm:text-[18px] md:text-[21px] font-medium text-[#303030] font-gt-walsheim mb-2 sm:mb-3 line-clamp-1 group-hover:text-[#7A1F3D] transition-colors">
                       {item.name}
                     </h3>
 
-                    <p className="text-[14px] text-gray-600 mb-2 line-clamp-2 font-gt-walsheim">
+                    <p className="text-[14px] text-gray-600 mb-4 line-clamp-2 font-gt-walsheim">
                       {item.short_description || (isProduct ? "Premium exclusive collection piece." : `Explore our exquisite ${item.name} collection.`)}
                     </p>
 

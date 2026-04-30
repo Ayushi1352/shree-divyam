@@ -51,7 +51,7 @@ export default function MataRaniDresses() {
   }
 
   return (
-    <section className="mx-auto max-w-[1720px] w-full bg-[#F8F6F3] py-10 sm:py-14 md:py-16 lg:py-[54px]">
+    <section id="mata-rani-section" className="mx-auto max-w-[1720px] w-full bg-[#F8F6F3] py-10 sm:py-14 md:py-16 lg:py-[54px]">
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 md:px-16 lg:px-24">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between lg:mb-11">
@@ -60,11 +60,11 @@ export default function MataRaniDresses() {
           </h2>
 
           <div className="flex items-center gap-2 sm:gap-3 self-start sm:self-auto">
-            <button className="mr-prev flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-[#B96882] bg-transparent text-[#B96882] transition hover:bg-[#7A1F3D] hover:text-white cursor-pointer">
-              <ChevronLeft size={16} strokeWidth={1.75} />
+            <button className="mr-prev flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-[#B96882] bg-transparent text-[#B96882] transition  hover:text-white cursor-pointer">
+           <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20ranii.png'></img>
             </button>
-            <button className="mr-next flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#8B1E4D] text-white transition hover:bg-[#6F173D] cursor-pointer">
-              <ChevronRight size={16} strokeWidth={1.75} />
+            <button className="mr-next flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full  text-white transition  cursor-pointer">
+              <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20rani.png'></img>
             </button>
           </div>
         </div>
@@ -115,15 +115,16 @@ export default function MataRaniDresses() {
                         {product.name}
                       </h3>
 
-                      <p className="mt-1 text-[12px] sm:text-[14px] leading-[1.45] font-gt-walsheim text-gray-600 line-clamp-2">
+                      <p className="mt-2 sm:mt-3 text-[12px] sm:text-[14px] leading-[1.45] font-gt-walsheim text-gray-600 line-clamp-2">
                         {product.short_description}
                       </p>
 
-                      <p className="mt-2 text-[18px] sm:text-[22px] md:text-[24px] font-bold font-gt-walsheim text-[#7A1F3D]">
-                        {formatPrice(product.price, product.usd_price)}
-                      </p>
+                      <div className="mt-auto pt-4">
+                        <p className="text-[18px] sm:text-[22px] md:text-[24px] font-bold font-gt-walsheim text-[#7A1F3D] mb-2 sm:mb-3">
+                          {formatPrice(product.price, product.usd_price)}
+                        </p>
 
-                        <div className="mt-auto pt-3 flex flex-col gap-2 min-[480px]:flex-row">
+                        <div className="flex flex-col gap-2 min-[480px]:flex-row">
                           <Link href={`/product-details/${product.slug}`} className="flex-1">
                             <button className="w-full h-[42px] flex items-center justify-center border border-[#7A1F3D] bg-[#7A1F3D] text-[13px] md:text-[14px] font-gt-walsheim font-medium text-white transition-all duration-300 hover:bg-white hover:text-[#7A1F3D] cursor-pointer">
                               Shop Now
@@ -133,6 +134,7 @@ export default function MataRaniDresses() {
                             <DirectAddToCart product={product} />
                           </div>
                         </div>
+                      </div>
                     </div>
                   </div>
                 </SwiperSlide>

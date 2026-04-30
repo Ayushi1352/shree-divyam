@@ -31,7 +31,7 @@ export default function ProductContainer({ product }) {
   const stock = variation?.stock;
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[0.9fr_1.23fr_0.87fr] lg:gap-8 gap-12 items-start">
+    <div className="flex flex-col lg:grid lg:grid-cols-[0.9fr_1.23fr_0.87fr] lg:gap-8 gap-12 items-stretch">
       {/* 2. Gallery (Shows 1st on mobile) */}
       <div ref={galleryRef} className="w-full order-1 lg:order-2">
         <ProductGallery images={product.images} />
