@@ -557,10 +557,6 @@ function CartContent() {
                                 <span className="text-gray-500 font-medium">Standard Shipping</span>
                                 <span className="text-green-600 font-bold uppercase text-[10px] tracking-widest bg-green-50 px-2 py-0.5 rounded border border-green-100">FREE</span>
                             </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500 font-medium">Estimated Taxes</span>
-                                <span className="text-[#303030] italic text-xs">Calculated at checkout</span>
-                            </div>
                         </div>
                     </div>
 

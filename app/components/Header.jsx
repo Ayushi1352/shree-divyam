@@ -152,7 +152,10 @@ export default function Header() {
           <div className="flex items-center gap-2 md:gap-6 w-full md:w-auto">
             <div className="flex items-center text-[14px] sm:text-[15px] md:text-[16px] gap-2">
               <Phone size={16} className="shrink-0" />
-              <span className="whitespace-nowrap font-medium">+91 8595046368</span>
+              {/* <span className="whitespace-nowrap font-medium">+91 8595046368</span> */}
+              <a href="tel:+918595046368" className="hover:text-white transition-colors whitespace-nowrap">
+                +91 8595046368
+              </a>
             </div>
           </div>
 
@@ -267,7 +270,7 @@ export default function Header() {
             <a href="#" className="hover:text-[#7A1F3D] cursor-pointer">Our Story</a>
             <a href="#" className="hover:text-[#7A1F3D] cursor-pointer">Explore Dresses</a>
             <a href="#" className="hover:text-[#7A1F3D] cursor-pointer">Gallery</a>
-            <a href="#" className="hover:text-[#7A1F3D] cursor-pointer">Contact Us</a>
+            <Link href="/contact" className="hover:text-[#7A1F3D] cursor-pointer">Contact Us</Link>
           </nav>
 
           {/* 📱 Mobile Menu Toggle */}
@@ -298,14 +301,14 @@ export default function Header() {
                 <a href="#" className="text-[18px] font-medium text-gray-900 hover:text-[#7A1F3D]" onClick={() => setIsMenuOpen(false)}>Our Story</a>
                 <a href="#" className="text-[18px] font-medium text-gray-900 hover:text-[#7A1F3D]" onClick={() => setIsMenuOpen(false)}>Explore Dresses</a>
                 <a href="#" className="text-[18px] font-medium text-gray-900 hover:text-[#7A1F3D]" onClick={() => setIsMenuOpen(false)}>Gallery</a>
-                <a href="#" className="text-[18px] font-medium text-gray-900 hover:text-[#7A1F3D]" onClick={() => setIsMenuOpen(false)}>Contact Us</a>
+                <Link href="/contact" className="text-[18px] font-medium text-gray-900 hover:text-[#7A1F3D]" onClick={() => setIsMenuOpen(false)}>Contact Us</Link>
               </div>
 
-              <div className="mt-auto border-t pt-6">
-                <div className="flex items-center gap-3 text-[#7A1F3D] font-medium">
+              <div className="mt-auto -mx-6 -mb-6 bg-[#7A1F3D] p-6">
+                <a href="tel:+918595046368" className="flex items-center gap-3 text-white font-medium hover:opacity-90 transition-opacity">
                   <Phone size={20} />
                   <span>+91 8595046368</span>
-                </div>
+                </a>
               </div>
             </div>
           </div>

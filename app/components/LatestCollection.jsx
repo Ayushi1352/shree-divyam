@@ -93,12 +93,12 @@ export default function LatestCollection() {
               </h2>
 
               <div className="flex gap-2 sm:gap-3">
-                <button className="swiper-button-prev-custom w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-gray-300 rounded-full hover:bg-[#7A1F3D] hover:text-white transition cursor-pointer">
-                  <ChevronLeft size={16} className="sm:w-[18px]" />
+                <button className="swiper-button-prev-custom w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-gray-300 rounded-full  hover:text-white transition cursor-pointer">
+                  <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20ranii.png'></img>
                 </button>
 
-                <button className="swiper-button-next-custom w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-[#7A1F3D] text-white hover:bg-[#5E182F] transition cursor-pointer">
-                  <ChevronRight size={16} className="sm:w-[18px]" />
+                <button className="swiper-button-next-custom w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full  text-white  transition cursor-pointer">
+                  <img src='https://res.cloudinary.com/dlzxiy0tl/image/upload/v1777294947/mata%20rani.png'></img>
                 </button>
               </div>
             </div>

@@ -23,7 +23,6 @@ export default function RegisterPage() {
         last_name: "",
         state: "",
         email: "",
-        username: "",
         password: "",
         password_confirmation: "",
         mobile_number: "",
@@ -45,13 +44,7 @@ export default function RegisterPage() {
                     error = "Alphabet required";
                 }
             }
-            if (name === "username") {
-                if (stringValue.length < 3) {
-                    error = "Username must be at least 3 characters";
-                } else if (!/^[a-zA-Z0-9_]+$/.test(stringValue)) {
-                    error = "Only letters, numbers, and underscores are allowed";
-                }
-            }
+
             if (name === "email") {
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 if (!emailRegex.test(stringValue)) error = "Please enter a valid email address";
@@ -118,7 +111,10 @@ export default function RegisterPage() {
             const response = await fetch(REGISTER_API, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    username: formData.email // Use email as username for API compatibility
+                }),
             });
 
             const data = await response.json();
@@ -252,32 +248,7 @@ export default function RegisterPage() {
                                 {errors.last_name && <p className="text-[11px] text-red-600 font-medium mt-1 animate-in slide-in-from-top-1">{errors.last_name}</p>}
                             </div>
 
-                            {/* Username */}
-                            <div className="space-y-2">
-                                <label className="text-[11px] uppercase tracking-[0.2em] font-bold text-gray-400">Username</label>
-                                <div className="relative group">
-                                    <User className={`absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-300 ${errors.username ? "text-red-400" : "text-gray-400 group-focus-within:text-[#7A1F3D]"}`} size={16} />
-                                    <input
-                                        type="text"
-                                        name="username"
-                                        value={formData.username}
-                                        onChange={handleInputChange}
-                                        onBlur={handleBlur}
-                                        placeholder="Username"
-                                        className={`w-full pl-10 pr-10 py-3 border outline-none transition-all duration-300 rounded-sm text-sm ${errors.username ? "border-red-300 bg-red-50/20 focus:border-red-500" : "border-gray-200 focus:border-[#7A1F3D]"} text-gray-800`}
-                                    />
-                                    {formData.username && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, username: "" }))}
-                                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors p-1"
-                                        >
-                                            <RxCross2  size={14} />
-                                        </button>
-                                    )}
-                                </div>
-                                {errors.username && <p className="text-[11px] text-red-600 font-medium mt-1 animate-in slide-in-from-top-1">{errors.username}</p>}
-                            </div>
+
 
                             {/* Email */}
                             <div className="space-y-2">

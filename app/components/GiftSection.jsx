@@ -37,13 +37,10 @@ export default function GiftSection() {
 
           <div className="order-1 text-center lg:order-2 px-6 lg:px-0">
             <div className="mx-auto max-w-[760px]">
-              <h2 className="font-gt-walsheim text-[20px] sm:text-[32px] md:text-[42px] lg:text-[40px]  lg:mt-20 font-medium leading-[1.3] text-[#3F3F50]">
-                <span className="block sm:inline lg:block">“Life is God’s gift to us What. </span>
-                <span className="block sm:inline lg:block"> we do with our work is our </span>
-                <span className="block sm:inline lg:block text-[#7A1F3D] font-semibold">
-                  Gift to God.”
-
-                </span>
+              <h2 className="font-gt-walsheim text-[20px] sm:text-[32px] md:text-[42px] lg:text-[40px] lg:mt-4 font-medium leading-[1.3] text-[#3F3F50] text-center mx-auto">
+                “Life is God’s gift to us. What<br className="hidden lg:block" />
+                we do with our work is our<br className="hidden lg:block" />
+                <span className="text-[#7A1F3D] font-semibold">Gift to God.”</span>
               </h2>
 
              

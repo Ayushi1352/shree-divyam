@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 
 export default function Hero() {
   return (
@@ -35,9 +36,11 @@ export default function Hero() {
             <span className="block">Radha Krishna & Mata Rani</span>
           </p>
 
-          <button className="mt-5 md:mt-8 rounded-sm bg-[#7A1F3D] border border-[#7A1F3D] px-7 md:px-10 py-2 sm:py-3 text-[13px] md:text-base font-semibold text-white hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 shadow-lg active:scale-95 cursor-pointer">
-            Shop Now
-          </button>
+          <Link href="/all-products">
+            <button className="mt-5 md:mt-8 rounded-sm bg-[#7A1F3D] border border-[#7A1F3D] px-7 md:px-10 py-2 sm:py-3 text-[13px] md:text-base font-semibold text-white hover:bg-white hover:text-[#7A1F3D] transition-all duration-300 shadow-lg active:scale-95 cursor-pointer">
+              Shop Now
+            </button>
+          </Link>
         </div>
 
         {/* Right Side: Krishna-ji Image Container */}

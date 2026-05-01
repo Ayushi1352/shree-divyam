@@ -59,7 +59,7 @@ export default function Footer() {
                 <a href="#" className="transition hover:text-[#8B1E4D] cursor-pointer">Gallery</a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-[#8B1E4D] cursor-pointer">Contact us</a>
+                <a href="/contact" className="transition hover:text-[#8B1E4D] cursor-pointer">Contact us</a>
               </li>
             </ul>
           </div>
@@ -71,13 +71,13 @@ export default function Footer() {
             </h3>
             <ul className="mt-5 space-y-4 text-[14px] sm:text-[15px] md:text-[16px] text-gray-600">
               <li>
-                <a href="#" className="transition hover:text-[#7A1F3D] cursor-pointer">Radha Krishna</a>
+                <a href="/#radha-krishna-section" className="transition hover:text-[#7A1F3D] cursor-pointer">Radha Krishna</a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-[#7A1F3D] cursor-pointer">Mata Rani</a>
+                <a href="/#mata-rani-section" className="transition hover:text-[#7A1F3D] cursor-pointer">Mata Rani</a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-[#7A1F3D] cursor-pointer">Laddo Gopal</a>
+                <a href="/#laddu-gopal-section" className="transition hover:text-[#7A1F3D] cursor-pointer">Laddo Gopal</a>
               </li>
             </ul>
           </div>
